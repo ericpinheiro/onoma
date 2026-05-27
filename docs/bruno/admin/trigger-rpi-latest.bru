@@ -1,0 +1,19 @@
+meta {
+  name: Trigger Latest RPI
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/admin/rpi/process/latest
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  force: false
+}

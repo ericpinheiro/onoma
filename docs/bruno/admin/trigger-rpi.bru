@@ -1,13 +1,17 @@
 meta {
   name: Trigger RPI Processing
   type: http
-  seq: 2
+  seq: 3
 }
 
 post {
   url: {{baseUrl}}/admin/rpi/process/2742
   body: none
   auth: bearer
+}
+
+params:query {
+  force: false
 }
 
 auth:bearer {

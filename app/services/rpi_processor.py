@@ -141,6 +141,12 @@ def run_latest_rpi():
         db.close()
 
 
+def get_latest_edition_number(db: Session) -> int:
+    """Retorna a edição mais recente: a última processada + 1, ou a estimativa pela data."""
+    last_log = db.query(RPIProcessingLog).order_by(RPIProcessingLog.edition_number.desc()).first()
+    return (last_log.edition_number + 1) if last_log else _estimate_current_edition()
+
+
 def _estimate_current_edition() -> int:
     """
     Estima o número da edição atual com base na data.

@@ -1,11 +1,11 @@
 meta {
-  name: List RPI Logs
+  name: Get Latest Edition Number
   type: http
-  seq: 4
+  seq: 1
 }
 
 get {
-  url: {{baseUrl}}/admin/rpi/logs
+  url: {{baseUrl}}/admin/rpi/latest-edition
   body: none
   auth: bearer
 }
