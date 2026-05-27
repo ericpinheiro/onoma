@@ -18,13 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def _build_rpi_url(edition_number: int) -> str:
-    """
-    Constrói a URL do XML para uma edição do RPI.
-    O INPI disponibiliza o arquivo de marcas no padrão:
-      https://revistas.inpi.gov.br/txt/MarcasXXXX.zip  (arquivo ZIP com XML interno)
-    ou em XML direto dependendo da edição. Ajuste conforme necessário.
-    """
-    return f"{settings.RPI_BASE_URL}/Marcas{edition_number}.zip"
+    return f"{settings.RPI_BASE_URL}/RM{edition_number}.zip"
 
 
 def _download_rpi(url: str) -> bytes:
