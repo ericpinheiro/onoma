@@ -33,25 +33,6 @@ def update_tenant_plan(
     return tenant
 
 
-@router.post("/rpi/process/{edition_number}", response_model=RPIProcessingLogResponse)
-def trigger_rpi_processing(
-    edition_number: int,
-    force: bool = False,
-    db: Session = Depends(get_db),
-):
-    already = db.query(RPIProcessingLog).filter(RPIProcessingLog.edition_number == edition_number).first()
-    if already and already.status == "success" and not force:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Edição {edition_number} já processada com sucesso. Use ?force=true para reprocessar.",
-        )
-    if already and force:
-        db.delete(already)
-        db.commit()
-    log = process_rpi_edition(edition_number, db)
-    return log
-
-
 @router.get("/rpi/latest-edition")
 def get_latest_edition(db: Session = Depends(get_db)):
     edition = get_latest_edition_number(db)
@@ -71,6 +52,25 @@ def trigger_latest_rpi(force: bool = False, db: Session = Depends(get_db)):
         db.delete(already)
         db.commit()
     return process_rpi_edition(edition, db)
+
+
+@router.post("/rpi/process/{edition_number}", response_model=RPIProcessingLogResponse)
+def trigger_rpi_processing(
+    edition_number: int,
+    force: bool = False,
+    db: Session = Depends(get_db),
+):
+    already = db.query(RPIProcessingLog).filter(RPIProcessingLog.edition_number == edition_number).first()
+    if already and already.status == "success" and not force:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Edição {edition_number} já processada com sucesso. Use ?force=true para reprocessar.",
+        )
+    if already and force:
+        db.delete(already)
+        db.commit()
+    log = process_rpi_edition(edition_number, db)
+    return log
 
 
 @router.get("/rpi/logs", response_model=list[RPIProcessingLogResponse])
