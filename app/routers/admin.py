@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -71,6 +71,28 @@ def trigger_rpi_processing(
         db.commit()
     log = process_rpi_edition(edition_number, db)
     return log
+
+
+@router.post("/rpi/backfill", response_model=list[RPIProcessingLogResponse])
+def trigger_backfill(
+    n: int = Query(..., ge=1, le=104, description="Número de edições anteriores ao latest para processar"),
+    force: bool = False,
+    db: Session = Depends(get_db),
+):
+    latest = get_latest_edition_number(db)
+    first_edition = latest - n + 1
+    logs = []
+    for edition in range(first_edition, latest + 1):
+        already = db.query(RPIProcessingLog).filter(RPIProcessingLog.edition_number == edition).first()
+        if already and already.status == "success" and not force:
+            logs.append(already)
+            continue
+        if already and force:
+            db.delete(already)
+            db.commit()
+        log = process_rpi_edition(edition, db)
+        logs.append(log)
+    return logs
 
 
 @router.get("/rpi/logs", response_model=list[RPIProcessingLogResponse])

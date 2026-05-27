@@ -1,0 +1,20 @@
+meta {
+  name: Backfill RPI (N edições)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/admin/rpi/backfill
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
+
+params:query {
+  n: 10
+  force: false
+}
