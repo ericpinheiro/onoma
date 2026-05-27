@@ -1,0 +1,60 @@
+{
+  "version": "1",
+  "name": "local",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:8000",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "email",
+      "value": "admin@test.com",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "tenantName",
+      "value": "Meu Escritório",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "password",
+      "value": "senha123",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "accessToken",
+      "value": "",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "refreshToken",
+      "value": "",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "superAdminToken",
+      "value": "seu-super-admin-token",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "trademarkId",
+      "value": "",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "tenantId",
+      "value": "",
+      "enabled": true,
+      "secret": false
+    }
+  ]
+}
