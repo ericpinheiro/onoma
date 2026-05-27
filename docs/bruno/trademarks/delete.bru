@@ -1,0 +1,15 @@
+meta {
+  name: Delete Trademark
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/trademarks/{{trademarkId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

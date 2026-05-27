@@ -1,0 +1,21 @@
+meta {
+  name: Get My Tenant
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/tenants/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("tenantId", res.body.id);
+  }
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Create Trademark
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/trademarks
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "process_number": "906596045",
+    "name": "Minha Marca"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setEnvVar("trademarkId", res.body.id);
+  }
+}

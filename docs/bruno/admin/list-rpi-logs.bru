@@ -1,0 +1,15 @@
+meta {
+  name: List RPI Logs
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/admin/rpi/logs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{superAdminToken}}
+}
