@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Criar conta · Onoma</title>
+<link rel="stylesheet" href="assets/styles.css" />
+<style>
+body {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 460px;
+  background: var(--bg-page);
+}
+
+/* Form column */
+.signup-main {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 56px;
+  min-height: 100vh;
+}
+.signup-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 56px;
+}
+.signup-top-right { font-size: 13px; color: var(--fg-muted); }
+.signup-top-right a { color: var(--fg); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+
+.signup-body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.signup-form-wrap {
+  width: 100%;
+  max-width: 480px;
+}
+.signup-h1 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 6px;
+}
+.signup-sub {
+  color: var(--fg-muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+/* Stepper */
+.stepper {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.step-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--fg-subtle);
+}
+.step-pill.active { color: var(--fg); }
+.step-pill.done { color: var(--fg-muted); }
+.step-num-bubble {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+.step-pill.active .step-num-bubble {
+  background: var(--fg);
+  color: var(--fg-inverse);
+  border-color: var(--fg);
+}
+.step-pill.done .step-num-bubble {
+  background: var(--bg-elevated);
+  color: var(--fg);
+  border-color: var(--fg);
+}
+.step-pill.done .step-num-bubble::after {
+  content: "✓";
+}
+.step-pill.done .step-num-bubble span { display: none; }
+
+.step-pane { display: none; flex-direction: column; gap: 14px; }
+.step-pane.active { display: flex; }
+
+.field-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Card input styled like Stripe */
+.card-element {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--bg-elevated);
+  padding: 0;
+  transition: border-color .15s, box-shadow .15s;
+}
+.card-element:focus-within { border-color: var(--fg); box-shadow: 0 0 0 3px rgba(0,0,0,.06); }
+.card-line-1 {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px;
+  align-items: center;
+  height: 38px;
+}
+.card-line-1 input {
+  border: none;
+  background: transparent;
+  height: 100%;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  outline: none;
+}
+.card-line-1 input + input { border-left: 1px solid var(--border); }
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.btn-block { flex: 1; height: 42px; }
+
+/* Reassurance card */
+.reassure {
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.5;
+}
+.reassure-icon {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  color: var(--fg);
+  margin-top: 1px;
+}
+.reassure strong { color: var(--fg); font-weight: 500; }
+
+.legal-note {
+  font-size: 12px;
+  color: var(--fg-subtle);
+  margin-top: 6px;
+  line-height: 1.55;
+}
+.legal-note a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Aside summary */
+.signup-aside {
+  background: var(--bg-subtle);
+  border-left: 1px solid var(--border);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+}
+.aside-h {
+  font-size: 13px;
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+.summary-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+}
+.summary-line + .summary-line { padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+.summary-line .price { font-family: var(--font-mono); font-weight: 500; }
+.summary-line .desc { color: var(--fg-muted); font-size: 12px; margin-top: 2px; }
+
+.today-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 2px solid var(--fg);
+}
+.today-line .label { font-size: 13px; font-weight: 500; }
+.today-line .price { font-family: var(--font-mono); font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+
+.bill-cycle {
+  margin-top: 24px;
+  padding: 16px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.bill-cycle h4 {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bill-cycle p {
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.55;
+}
+.bill-cycle code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-subtle);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+.aside-trust {
+  margin-top: auto;
+  font-size: 11px;
+  color: var(--fg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 32px;
+}
+.aside-trust-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.aside-trust-bar span {
+  display: inline-flex; align-items: center; gap: 4px;
+}
+
+/* Step 3 (done) */
+.done-pane { text-align: center; padding: 40px 0; }
+.done-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--fg-inverse);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+}
+
+@media (max-width: 880px) {
+  body { grid-template-columns: 1fr; }
+  .signup-aside { display: none; }
+  .signup-main { padding: 24px; }
+  .signup-top { margin-bottom: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGO SYMBOL -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="root" viewBox="440 370 1170 270">
+      <path fill="currentColor" d="M 1500.39 453.408 C 1501.44 453.356 1502.49 453.318 1503.54 453.294 C 1525.01 452.81 1542.21 459.021 1557.63 473.817 L 1557.88 456.824 L 1594.06 456.725 L 1594.04 619.155 L 1557.77 619.13 L 1557.77 601.171 C 1551.64 607.372 1547.59 610.304 1540.16 614.519 C 1532.02 618.408 1523.26 620.829 1514.28 621.671 C 1491.18 624.223 1468.03 617.428 1449.97 602.801 C 1432.89 588.497 1422.17 568.015 1420.14 545.829 C 1415.43 494.805 1450.53 457.877 1500.39 453.408 z M 1500.59 488.219 C 1527.7 484.344 1552.87 503.056 1556.98 530.14 C 1561.08 557.223 1542.58 582.549 1515.53 586.877 C 1488.16 591.255 1462.47 572.486 1458.32 545.081 C 1454.17 517.676 1473.15 492.141 1500.59 488.219 z M 566.471 383.409 C 594.393 381.417 616.016 387.654 639.856 401.642 C 630.645 410.798 621.524 420.043 612.494 429.377 C 602.966 424.912 592.732 422.142 582.253 421.191 C 560.247 419.223 538.376 426.195 521.57 440.536 C 504.937 454.718 494.615 474.923 492.873 496.712 C 491.028 518.185 497.973 539.487 512.119 555.747 C 526.77 572.554 547.517 582.827 569.765 584.292 C 591.774 585.858 613.498 578.578 630.118 564.067 C 646.606 549.376 656.539 528.705 657.705 506.653 C 659.072 482.521 650.204 463.355 634.472 445.721 C 639.679 440.756 657.256 421.35 661.906 419.806 L 664.284 421.608 C 682.407 439.927 693.595 465.277 696.204 490.816 C 699.366 522.392 689.945 553.942 669.987 578.615 C 627.409 630.344 547.014 636.832 495.936 594.129 C 471.829 574.122 456.738 545.294 454.034 514.082 C 451.065 482.158 461.099 450.385 481.866 425.956 C 504.029 399.756 532.583 386.307 566.471 383.409 z M 999.6 451.497 C 1047.23 448.213 1088.51 484.136 1091.83 531.758 C 1095.16 579.38 1059.27 620.693 1011.65 624.062 C 963.973 627.436 922.596 591.495 919.266 543.812 C 915.935 496.128 951.914 454.784 999.6 451.497 z M 998.332 488.147 C 1025.56 484.104 1050.94 502.818 1055.13 530.026 C 1059.32 557.234 1040.74 582.714 1013.55 587.047 C 986.163 591.412 960.448 572.663 956.229 545.249 C 952.009 517.835 970.896 492.22 998.332 488.147 z M 1205.57 453.398 C 1230.54 450.648 1252.82 462.871 1266.24 483.43 C 1268.72 479.431 1271.62 475.713 1274.9 472.34 C 1299.63 447.121 1347.06 446.853 1372.16 471.667 C 1395.68 494.913 1392 530.951 1391.96 561.337 L 1391.84 619.16 L 1355.57 619.184 L 1355.69 560.404 C 1355.71 545.665 1356.46 531.107 1353.74 516.556 C 1348.01 485.748 1308.15 479.597 1288 500.067 C 1272.59 515.726 1276.7 547.69 1276.84 568.5 L 1276.89 619.184 L 1240.34 619.173 L 1240.44 557.757 C 1240.48 538.806 1243.49 512.864 1229.44 498.408 C 1215.31 484.027 1187.65 485.075 1173.83 499.348 C 1158.51 515.153 1161.74 539.466 1161.83 559.983 L 1161.92 619.144 L 1125.29 619.182 C 1125.36 566.792 1123.84 508.403 1125.45 456.752 L 1161.92 456.763 L 1162 473.373 C 1175.72 459.741 1186.66 455.226 1205.57 453.398 z M 814.303 453.41 C 833.356 451.659 855.783 459.1 869.345 472.795 C 893.34 497.027 889.944 530.572 889.916 561.868 L 889.819 619.146 L 853.265 619.162 C 853.305 607.098 853.198 594.775 853.377 582.719 C 853.994 541.095 861.956 473.449 795.196 490.698 C 789.713 492.717 783.815 496.357 779.694 500.476 C 774.045 506.163 770.111 513.326 768.342 521.145 C 765.999 531.068 766.794 552.413 766.849 563.449 L 766.967 619.161 L 730.276 619.128 L 730.228 456.718 L 766.987 456.71 L 767.054 474.426 C 781.795 459.827 793.993 455.18 814.303 453.41 z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<section class="signup-main">
+  <div class="signup-top">
+    <a href="index.html" class="onoma-logo" aria-label="Onoma">
+      <svg viewBox="440 370 1170 270"><use href="#root"/></svg>
+    </a>
+    <div class="signup-top-right">
+      Já tem conta? <a href="login.html">Entrar</a>
+    </div>
+  </div>
+
+  <div class="signup-body">
+    <div class="signup-form-wrap">
+      <h1 class="signup-h1">Criar conta na Onoma</h1>
+      <p class="signup-sub">Leva menos de 2 minutos. Sem cobrança no cadastro.</p>
+
+      <div class="stepper" id="stepper">
+        <div class="step-pill active" data-step="1">
+          <span class="step-num-bubble"><span>1</span></span>
+          Sua conta
+        </div>
+        <div class="step-pill" data-step="2">
+          <span class="step-num-bubble"><span>2</span></span>
+          Pagamento
+        </div>
+        <div class="step-pill" data-step="3">
+          <span class="step-num-bubble"><span>3</span></span>
+          Pronto
+        </div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="step-pane active" data-pane="1">
+        <div class="field">
+          <label class="field-label" for="tenant">Nome do escritório ou empresa</label>
+          <input type="text" class="input" id="tenant" placeholder="Silva & Associados PI" required />
+          <span class="field-hint">É assim que sua conta vai aparecer na plataforma. Pode editar depois.</span>
+        </div>
+        <div class="field">
+          <label class="field-label" for="email2">Email de trabalho</label>
+          <input type="email" class="input" id="email2" placeholder="voce@empresa.com.br" required />
+        </div>
+        <div class="field">
+          <label class="field-label" for="password2">Senha</label>
+          <input type="password" class="input" id="password2" placeholder="Mínimo 8 caracteres" minlength="8" required />
+        </div>
+        <button class="btn btn-primary btn-block" onclick="goStep(2)">Continuar para pagamento</button>
+        <p class="legal-note">
+          Ao continuar você concorda com os <a href="#">Termos</a> e a <a href="#">Política de privacidade</a>.
+        </p>
+      </div>
+
+      <!-- STEP 2 — Stripe -->
+      <div class="step-pane" data-pane="2">
+        <div class="reassure">
+          <svg class="reassure-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 4.5l6-3 6 3v4.5c0 4-2.6 6.6-6 7.5-3.4-.9-6-3.5-6-7.5V4.5z"/>
+            <path d="M6.5 9l2 2 3-3.5"/>
+          </svg>
+          <div>
+            <strong>Nenhum valor será cobrado agora.</strong> O cartão fica salvo só pra emitir a fatura no fim do mês, baseada no uso. Você pode trocar ou remover depois.
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 8px;">
+          <label class="field-label">Dados do cartão</label>
+          <div class="card-element">
+            <div class="card-line-1">
+              <input type="text" placeholder="1234 1234 1234 1234" inputmode="numeric" id="cc-num" />
+              <input type="text" placeholder="MM / AA" inputmode="numeric" id="cc-exp" />
+              <input type="text" placeholder="CVC" inputmode="numeric" id="cc-cvc" />
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="cc-name">Nome no cartão</label>
+          <input type="text" class="input" id="cc-name" placeholder="Como aparece no cartão" />
+        </div>
+
+        <div class="field-grid-2">
+          <div class="field">
+            <label class="field-label" for="cc-country">País</label>
+            <select class="input" id="cc-country">
+              <option>Brasil</option>
+              <option>Portugal</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="cc-cep">CEP</label>
+            <input type="text" class="input" id="cc-cep" placeholder="00000-000" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-block" onclick="goStep(1)">← Voltar</button>
+          <button class="btn btn-primary btn-block" onclick="goStep(3)">Salvar cartão e criar conta</button>
+        </div>
+
+        <p class="legal-note" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V4.5a3 3 0 016 0V7"/></svg>
+          Dados processados pelo Stripe. Onoma não armazena o número do seu cartão.
+        </p>
+      </div>
+
+      <!-- STEP 3 — Done -->
+      <div class="step-pane" data-pane="3">
+        <div class="done-pane">
+          <div class="done-icon">✓</div>
+          <h2 style="font-size: 24px; letter-spacing: -0.02em; margin-bottom: 8px;">Conta criada</h2>
+          <p style="color: var(--fg-muted); font-size: 14px; max-width: 360px; margin: 0 auto 28px;">
+            Você já pode começar a cadastrar suas marcas. A primeira fatura fecha no último dia do mês.
+          </p>
+          <a href="app.html" class="btn btn-primary btn-lg">Ir para o dashboard →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Order summary -->
+<aside class="signup-aside">
+  <div class="aside-h">Resumo</div>
+
+  <div class="summary-card">
+    <div>
+      <div class="summary-line">
+        <span>Consulta semanal de status</span>
+        <span class="price">R$ 0,30</span>
+      </div>
+      <div class="desc" style="color: var(--fg-muted); font-size: 12px;">Por marca, por edição da RPI · 4×/mês</div>
+    </div>
+    <div>
+      <div class="summary-line" style="border: none; padding: 0;">
+        <span>Requisição via API <span style="font-size:11px;color:var(--fg-disabled);">em breve</span></span>
+        <span class="price">R$ 0,0001</span>
+      </div>
+      <div class="desc" style="color: var(--fg-muted); font-size: 12px;">Por chamada GET</div>
+    </div>
+    <div>
+      <div class="summary-line" style="border: none; padding: 0;">
+        <span>Dashboard, histórico, webhooks, time</span>
+        <span class="price">Grátis</span>
+      </div>
+      <div class="desc" style="color: var(--fg-muted); font-size: 12px;">Sem custo extra, sem limite</div>
+    </div>
+
+    <div class="today-line">
+      <span class="label">Total hoje</span>
+      <span class="price">R$ 0,00</span>
+    </div>
+  </div>
+
+  <div class="bill-cycle">
+    <h4>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 2v3M11 2v3M2 7h12"/></svg>
+      Primeiro ciclo de cobrança
+    </h4>
+    <p>
+      A próxima fatura fecha em <code>31 mai 2026</code> e soma todas as consultas do mês.
+      Você pode ver a fatura em construção, em tempo real, na aba <strong style="color:var(--fg);font-weight:500;">Billing</strong>.
+    </p>
+  </div>
+
+  <div class="aside-trust">
+    <div class="aside-trust-bar">
+      <span>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V4.5a3 3 0 016 0V7"/></svg>
+        TLS 1.3
+      </span>
+      <span>· PCI DSS via Stripe</span>
+      <span>· LGPD</span>
+    </div>
+  </div>
+</aside>
+
+<script>
+function goStep(n) {
+  document.querySelectorAll('.step-pill').forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    const stepIdx = i + 1;
+    if (stepIdx === n) el.classList.add('active');
+    else if (stepIdx < n) el.classList.add('done');
+  });
+  document.querySelectorAll('.step-pane').forEach((el, i) => {
+    el.classList.toggle('active', (i + 1) === n);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Card formatting
+const ccNum = document.getElementById('cc-num');
+const ccExp = document.getElementById('cc-exp');
+ccNum.addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+  e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+});
+ccExp.addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2);
+  e.target.value = v;
+});
+document.getElementById('cc-cvc').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+});
+</script>
+</body>
+</html>

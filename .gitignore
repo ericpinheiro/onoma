@@ -1,13 +1,26 @@
-.env
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-dist/
-build/
-.pytest_cache/
-.coverage
-htmlcov/
+# Python (api/)
+api/.env
+api/__pycache__/
+api/**/__pycache__/
+api/*.py[cod]
+api/**/*.py[cod]
+api/*.egg-info/
+api/.venv/
+api/venv/
+api/dist/
+api/build/
+api/.pytest_cache/
+api/.coverage
+api/htmlcov/
+
+# Node (ui/)
+ui/.env.local
+ui/.env*.local
+ui/node_modules/
+ui/.next/
+ui/out/
+ui/dist/
+
+# General
 *.log
 .DS_Store

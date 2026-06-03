@@ -1,0 +1,113 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+
+.section {
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 16px;
+}
+
+// Chart bars
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+}
+
+.bar {
+  flex: 1;
+  background: var(--bg-subtle);
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  position: relative;
+  min-height: 4px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--border-strong);
+  }
+}
+
+.barFill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--fg);
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+}
+
+// Activity log
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.logDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+  background: var(--border-strong);
+
+  &.success { background: var(--success); }
+  &.warn { background: var(--warn); }
+}
+
+.logText {
+  flex: 1;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+
+.logTime {
+  font-size: 11px;
+  color: var(--fg-disabled);
+  white-space: nowrap;
+}

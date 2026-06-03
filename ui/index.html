@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Onoma — Monitoramento de marcas INPI</title>
+<link rel="stylesheet" href="assets/styles.css" />
+<style>
+/* ============ LP-specific ============ */
+body { background: var(--bg-page); }
+
+/* Nav */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+.nav-links {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.nav-link {
+  font-size: 14px;
+  color: var(--fg-muted);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  transition: color .15s, background .15s;
+}
+.nav-link:hover { color: var(--fg); background: var(--bg-subtle); }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+
+/* Hero */
+.hero {
+  position: relative;
+  padding: 96px 0 64px;
+  overflow: hidden;
+}
+.hero-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 30%, transparent 75%);
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  font-size: 13px;
+  color: var(--fg-muted);
+  background: var(--bg-elevated);
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-xs);
+}
+.hero-pill-tag {
+  background: var(--fg);
+  color: var(--fg-inverse);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.hero-pill-arrow {
+  color: var(--fg-subtle);
+  margin-left: 2px;
+}
+h1.hero-title {
+  font-size: clamp(40px, 6vw, 68px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  margin-bottom: 22px;
+}
+.hero-sub {
+  font-size: 19px;
+  color: var(--fg-muted);
+  max-width: 580px;
+  margin: 0 auto 36px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+.hero-ctas {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.hero-fineprint {
+  font-size: 13px;
+  color: var(--fg-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Hero visual — dashboard preview */
+.hero-visual {
+  position: relative;
+  max-width: 1080px;
+  margin: 64px auto 0;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+.hv-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+.hv-dot { width: 11px; height: 11px; border-radius: 50%; background: #d6d3d1; }
+.hv-url {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-subtle);
+}
+.hv-body { display: grid; grid-template-columns: 200px 1fr; min-height: 460px; }
+.hv-side {
+  border-right: 1px solid var(--border);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hv-side-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px; border-radius: var(--r-sm);
+  font-size: 13px; color: var(--fg-muted);
+}
+.hv-side-item.active { background: var(--bg-subtle); color: var(--fg); font-weight: 500; }
+.hv-side-icon { width: 14px; height: 14px; opacity: .7; }
+.hv-side-section {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-subtle);
+  padding: 16px 10px 6px;
+}
+.hv-main { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+.hv-h1 { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+.hv-kpis { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.hv-kpi {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.hv-kpi-label { font-size: 12px; color: var(--fg-subtle); }
+.hv-kpi-value { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; margin-top: 4px; }
+.hv-kpi-delta { font-size: 11px; color: var(--success); margin-top: 2px; }
+.hv-table {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.hv-table-head, .hv-table-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr .8fr;
+  align-items: center;
+  padding: 9px 14px;
+  font-size: 13px;
+}
+.hv-table-head {
+  background: var(--bg-subtle);
+  color: var(--fg-subtle);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+}
+.hv-table-row + .hv-table-row { border-top: 1px solid var(--border-subtle); }
+.hv-tm { font-weight: 500; }
+.hv-num { font-family: var(--font-mono); color: var(--fg-subtle); font-size: 12px; }
+
+/* Sections */
+section.bloc { padding: 96px 0; }
+.bloc-head {
+  max-width: 680px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+.bloc-head h2 {
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: 12px;
+}
+.bloc-head p {
+  margin-top: 16px;
+  font-size: 17px;
+  color: var(--fg-muted);
+}
+
+/* How it works */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.step {
+  padding: 32px 28px;
+  background: var(--bg-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 220px;
+}
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-subtle);
+}
+.step-title {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.step-desc {
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.step-tag {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-subtle);
+  padding: 4px 8px;
+  background: var(--bg-subtle);
+  border-radius: var(--r-sm);
+  align-self: flex-start;
+}
+
+/* Trademark detail mock */
+.demo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+.demo-text h3 {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
+  line-height: 1.15;
+}
+.demo-text p {
+  color: var(--fg-muted);
+  font-size: 16px;
+  margin-bottom: 14px;
+  line-height: 1.55;
+}
+.demo-text ul {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.demo-text li {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+.demo-text li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  margin-top: 2px;
+  background: var(--fg);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='currentColor' d='M13.5 4.5 6 12l-3.5-3.5 1-1L6 10l6.5-6.5z'/></svg>") center/contain no-repeat;
+          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='currentColor' d='M13.5 4.5 6 12l-3.5-3.5 1-1L6 10l6.5-6.5z'/></svg>") center/contain no-repeat;
+}
+.demo-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.demo-card-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.demo-card-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+.demo-card-subtitle {
+  font-size: 12px;
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+.timeline {
+  padding: 8px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.tl-item {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 14px;
+  padding: 12px 0;
+  position: relative;
+}
+.tl-item + .tl-item { border-top: 1px solid var(--border-subtle); }
+.tl-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-strong);
+  margin-top: 6px;
+  justify-self: center;
+}
+.tl-item.now .tl-dot {
+  background: var(--fg);
+  border-color: var(--fg);
+}
+.tl-status {
+  font-size: 14px;
+  font-weight: 500;
+}
+.tl-desc {
+  font-size: 12px;
+  color: var(--fg-subtle);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.tl-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-subtle);
+  text-align: right;
+  white-space: nowrap;
+  padding-top: 4px;
+}
+
+/* Pricing */
+.pricing-wrap {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+.pricing-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 36px 36px 32px;
+  background: var(--bg-elevated);
+}
+.pricing-card.featured {
+  background: #0a0a0a;
+  color: #fafafa;
+  border-color: #0a0a0a;
+}
+.pricing-card.featured .pc-label,
+.pricing-card.featured .pc-sub,
+.pricing-card.featured .pc-row-sub { color: rgba(250,250,250,.6); }
+.pricing-card.featured .pc-row { border-top-color: rgba(255,255,255,.1); }
+.pc-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-subtle);
+}
+.pc-price {
+  font-size: 64px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 14px 0 6px;
+  font-feature-settings: "tnum" 1;
+}
+.pc-price small {
+  font-size: 18px;
+  color: var(--fg-muted);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.pricing-card.featured .pc-price small { color: rgba(250,250,250,.55); }
+.pc-sub {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin-bottom: 28px;
+}
+.pc-rows { display: flex; flex-direction: column; }
+.pc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.pc-row-name { font-size: 14px; }
+.pc-row-sub { font-size: 12px; color: var(--fg-subtle); }
+.pc-row-price { font-family: var(--font-mono); font-size: 14px; font-weight: 500; }
+
+/* Calc */
+.calc {
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  background: var(--bg-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.calc-title { font-size: 16px; font-weight: 500; }
+.calc-row { display: flex; flex-direction: column; gap: 8px; }
+.calc-slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.calc-slider-val {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 500;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  background: var(--fg);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--bg-elevated);
+  box-shadow: 0 0 0 1px var(--fg);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  background: var(--fg);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--bg-elevated);
+  box-shadow: 0 0 0 1px var(--fg);
+}
+.calc-result {
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--border-strong);
+}
+.calc-result-label { font-size: 12px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: .04em; }
+.calc-result-val {
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-top: 4px;
+  font-feature-settings: "tnum" 1;
+}
+.calc-result-sub { font-size: 13px; color: var(--fg-muted); margin-top: 6px; }
+
+/* Billing promise */
+.promise {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 48px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.promise-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.promise-icon {
+  width: 36px; height: 36px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+}
+.promise-item h4 {
+  font-size: 16px;
+  font-weight: 500;
+}
+.promise-item p {
+  font-size: 14px;
+  color: var(--fg-muted);
+  line-height: 1.55;
+}
+
+/* API teaser */
+.api-row {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 40px;
+  align-items: center;
+}
+.code-block {
+  background: #0a0a0a;
+  color: #e7e5e4;
+  border-radius: var(--r-lg);
+  padding: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: auto;
+  box-shadow: var(--shadow-lg);
+}
+.code-block .c { color: #737373; }
+.code-block .k { color: #fafafa; font-weight: 500; }
+.code-block .s { color: #a3e635; }
+.code-block .n { color: #fbbf24; }
+.code-block .p { color: #94a3b8; }
+
+/* CTA */
+.cta-final {
+  text-align: center;
+  padding: 96px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+.cta-final h2 {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.cta-final p {
+  font-size: 17px;
+  color: var(--fg-muted);
+  max-width: 540px;
+  margin: 0 auto 32px;
+}
+
+/* Footer */
+footer.foot {
+  padding: 48px 0 64px;
+}
+.foot-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+.foot-col h5 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-subtle);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.foot-col a {
+  display: block;
+  font-size: 14px;
+  color: var(--fg-muted);
+  padding: 4px 0;
+}
+.foot-col a:hover { color: var(--fg); }
+.foot-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--fg-subtle);
+}
+
+@media (max-width: 880px) {
+  .hv-body { grid-template-columns: 1fr; }
+  .hv-side { display: none; }
+  .steps { grid-template-columns: 1fr; }
+  .demo-row { grid-template-columns: 1fr; }
+  .pricing-wrap { grid-template-columns: 1fr; }
+  .promise { grid-template-columns: 1fr; padding: 32px; }
+  .api-row { grid-template-columns: 1fr; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGO SYMBOL DEFINITION (referenced by <use> throughout the page) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="root" viewBox="440 370 1170 270">
+      <path fill="currentColor" d="M 1500.39 453.408 C 1501.44 453.356 1502.49 453.318 1503.54 453.294 C 1525.01 452.81 1542.21 459.021 1557.63 473.817 L 1557.88 456.824 L 1594.06 456.725 L 1594.04 619.155 L 1557.77 619.13 L 1557.77 601.171 C 1551.64 607.372 1547.59 610.304 1540.16 614.519 C 1532.02 618.408 1523.26 620.829 1514.28 621.671 C 1491.18 624.223 1468.03 617.428 1449.97 602.801 C 1432.89 588.497 1422.17 568.015 1420.14 545.829 C 1415.43 494.805 1450.53 457.877 1500.39 453.408 z M 1500.59 488.219 C 1527.7 484.344 1552.87 503.056 1556.98 530.14 C 1561.08 557.223 1542.58 582.549 1515.53 586.877 C 1488.16 591.255 1462.47 572.486 1458.32 545.081 C 1454.17 517.676 1473.15 492.141 1500.59 488.219 z M 566.471 383.409 C 594.393 381.417 616.016 387.654 639.856 401.642 C 630.645 410.798 621.524 420.043 612.494 429.377 C 602.966 424.912 592.732 422.142 582.253 421.191 C 560.247 419.223 538.376 426.195 521.57 440.536 C 504.937 454.718 494.615 474.923 492.873 496.712 C 491.028 518.185 497.973 539.487 512.119 555.747 C 526.77 572.554 547.517 582.827 569.765 584.292 C 591.774 585.858 613.498 578.578 630.118 564.067 C 646.606 549.376 656.539 528.705 657.705 506.653 C 659.072 482.521 650.204 463.355 634.472 445.721 C 639.679 440.756 657.256 421.35 661.906 419.806 L 664.284 421.608 C 682.407 439.927 693.595 465.277 696.204 490.816 C 699.366 522.392 689.945 553.942 669.987 578.615 C 627.409 630.344 547.014 636.832 495.936 594.129 C 471.829 574.122 456.738 545.294 454.034 514.082 C 451.065 482.158 461.099 450.385 481.866 425.956 C 504.029 399.756 532.583 386.307 566.471 383.409 z M 999.6 451.497 C 1047.23 448.213 1088.51 484.136 1091.83 531.758 C 1095.16 579.38 1059.27 620.693 1011.65 624.062 C 963.973 627.436 922.596 591.495 919.266 543.812 C 915.935 496.128 951.914 454.784 999.6 451.497 z M 998.332 488.147 C 1025.56 484.104 1050.94 502.818 1055.13 530.026 C 1059.32 557.234 1040.74 582.714 1013.55 587.047 C 986.163 591.412 960.448 572.663 956.229 545.249 C 952.009 517.835 970.896 492.22 998.332 488.147 z M 1205.57 453.398 C 1230.54 450.648 1252.82 462.871 1266.24 483.43 C 1268.72 479.431 1271.62 475.713 1274.9 472.34 C 1299.63 447.121 1347.06 446.853 1372.16 471.667 C 1395.68 494.913 1392 530.951 1391.96 561.337 L 1391.84 619.16 L 1355.57 619.184 L 1355.69 560.404 C 1355.71 545.665 1356.46 531.107 1353.74 516.556 C 1348.01 485.748 1308.15 479.597 1288 500.067 C 1272.59 515.726 1276.7 547.69 1276.84 568.5 L 1276.89 619.184 L 1240.34 619.173 L 1240.44 557.757 C 1240.48 538.806 1243.49 512.864 1229.44 498.408 C 1215.31 484.027 1187.65 485.075 1173.83 499.348 C 1158.51 515.153 1161.74 539.466 1161.83 559.983 L 1161.92 619.144 L 1125.29 619.182 C 1125.36 566.792 1123.84 508.403 1125.45 456.752 L 1161.92 456.763 L 1162 473.373 C 1175.72 459.741 1186.66 455.226 1205.57 453.398 z M 814.303 453.41 C 833.356 451.659 855.783 459.1 869.345 472.795 C 893.34 497.027 889.944 530.572 889.916 561.868 L 889.819 619.146 L 853.265 619.162 C 853.305 607.098 853.198 594.775 853.377 582.719 C 853.994 541.095 861.956 473.449 795.196 490.698 C 789.713 492.717 783.815 496.357 779.694 500.476 C 774.045 506.163 770.111 513.326 768.342 521.145 C 765.999 531.068 766.794 552.413 766.849 563.449 L 766.967 619.161 L 730.276 619.128 L 730.228 456.718 L 766.987 456.71 L 767.054 474.426 C 781.795 459.827 793.993 455.18 814.303 453.41 z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="onoma-logo" aria-label="Onoma">
+      <svg viewBox="440 370 1170 270"><use href="#root"/></svg>
+    </a>
+    <div class="nav-links">
+      <a href="#produto" class="nav-link">Produto</a>
+      <a href="#precos" class="nav-link">Preços</a>
+      <a href="#api" class="nav-link">API</a>
+      <a href="#faq" class="nav-link">Como funciona</a>
+    </div>
+    <div class="nav-right">
+      <a href="login.html" class="btn btn-ghost">Entrar</a>
+      <a href="signup.html" class="btn btn-primary">Começar grátis</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero hero-grid">
+  <div class="container hero-inner">
+    <div class="hero-pill">
+      <span class="hero-pill-tag">Novo</span>
+      <span>RPI 2826 processada — 14 mai 2026</span>
+      <span class="hero-pill-arrow">→</span>
+    </div>
+    <h1 class="hero-title">Monitoramento de marcas, sem abrir a RPI.</h1>
+    <p class="hero-sub">
+      Toda terça importamos a Revista da Propriedade Industrial e identificamos
+      as movimentações dos seus processos. Você vê só o que importa — status atual
+      e histórico completo de cada marca.
+    </p>
+    <div class="hero-ctas">
+      <a href="signup.html" class="btn btn-primary btn-lg">Começar agora</a>
+      <a href="#api" class="btn btn-secondary btn-lg">Ver a API</a>
+    </div>
+    <span class="hero-fineprint">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 8 7 9.5l3.5-3.5"/></svg>
+      Sem cobrança no cadastro · Fatura mensal pelo uso
+    </span>
+  </div>
+
+  <!-- Hero visual: dashboard mock -->
+  <div class="container">
+    <div class="hero-visual">
+      <div class="hv-chrome">
+        <span class="hv-dot"></span><span class="hv-dot"></span><span class="hv-dot"></span>
+        <span class="hv-url">onoma.app/dashboard</span>
+        <span style="width: 33px;"></span>
+      </div>
+      <div class="hv-body">
+        <aside class="hv-side">
+          <div class="hv-side-item active">
+            <svg class="hv-side-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>
+            Overview
+          </div>
+          <div class="hv-side-item">
+            <svg class="hv-side-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12M5 4V2.5M11 4V2.5"/></svg>
+            Marcas
+          </div>
+          <div class="hv-side-item">
+            <svg class="hv-side-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h10v10H3z"/><path d="M5 6h6M5 9h6M5 11h4"/></svg>
+            Logs RPI
+          </div>
+          <div class="hv-side-item">
+            <svg class="hv-side-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2.5"/><path d="M2 13c0-2.2 1.8-4 4-4s4 1.8 4 4M11 7a2 2 0 100-4 2 2 0 000 4zM14 13c0-1.6-.9-3-2.2-3.6"/></svg>
+            Time
+          </div>
+          <div class="hv-side-section">Conta</div>
+          <div class="hv-side-item">
+            <svg class="hv-side-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="1"/><path d="M2 7h12"/></svg>
+            Billing
+          </div>
+          <div class="hv-side-item">
+            <svg class="hv-side-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M14.4 4.4l-1.4 1.4M3 11l-1.4 1.4M15 8h-2M3 8H1M14.4 11.6 13 10.2M3 5 1.6 3.6"/></svg>
+            Configurações
+          </div>
+        </aside>
+        <main class="hv-main">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div class="hv-h1">Overview</div>
+            <span class="badge"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span> RPI 2826 sincronizada</span>
+          </div>
+          <div class="hv-kpis">
+            <div class="hv-kpi">
+              <div class="hv-kpi-label">Marcas monitoradas</div>
+              <div class="hv-kpi-value">142</div>
+              <div class="hv-kpi-delta">+8 este mês</div>
+            </div>
+            <div class="hv-kpi">
+              <div class="hv-kpi-label">Despachos no mês</div>
+              <div class="hv-kpi-value">23</div>
+              <div class="hv-kpi-delta">11 deferidos</div>
+            </div>
+            <div class="hv-kpi">
+              <div class="hv-kpi-label">Fatura prevista</div>
+              <div class="hv-kpi-value">R$ 170,40</div>
+              <div class="hv-kpi-delta" style="color: var(--fg-subtle);">fecha 31 mai</div>
+            </div>
+          </div>
+          <div class="hv-table">
+            <div class="hv-table-head">
+              <span>Marca</span><span>Status atual</span><span>Última RPI</span><span></span>
+            </div>
+            <div class="hv-table-row">
+              <span class="hv-tm">MERIDIANA</span>
+              <span><span class="badge badge-success">Deferido</span></span>
+              <span class="hv-num">2826 · 14/05</span>
+              <span></span>
+            </div>
+            <div class="hv-table-row">
+              <span class="hv-tm">ALTAVOZ</span>
+              <span><span class="badge badge-warn">Exigência</span></span>
+              <span class="hv-num">2826 · 14/05</span>
+              <span></span>
+            </div>
+            <div class="hv-table-row">
+              <span class="hv-tm">PETALA</span>
+              <span><span class="badge">Em exame</span></span>
+              <span class="hv-num">2824 · 30/04</span>
+              <span></span>
+            </div>
+            <div class="hv-table-row">
+              <span class="hv-tm">FAROLITO</span>
+              <span><span class="badge badge-success">Concedido</span></span>
+              <span class="hv-num">2825 · 07/05</span>
+              <span></span>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section class="bloc" id="produto">
+  <div class="container">
+    <div class="bloc-head">
+      <span class="eyebrow">Como funciona</span>
+      <h2>O INPI publica. A gente lê por você.</h2>
+      <p>Três passos automáticos por trás de cada notificação que chega no seu dashboard.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3 class="step-title">Cadastre os processos</h3>
+        <p class="step-desc">Adicione marcas pelo número do processo INPI. Não importa se você tem 5 ou 5.000 — o cadastro leva segundos por marca, em lote ou via API.</p>
+        <span class="step-tag">POST /trademarks</span>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Importação semanal da RPI</h3>
+        <p class="step-desc">Toda terça, baixamos a edição mais recente da Revista da Propriedade Industrial e processamos o XML completo procurando os seus processos.</p>
+        <span class="step-tag">cron · ter 09:00</span>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Status sempre atual</h3>
+        <p class="step-desc">Quando algo muda — deferimento, exigência, oposição — atualizamos o status da marca e guardamos no histórico. Você consulta na hora.</p>
+        <span class="step-tag">GET /trademarks/{id}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO / TIMELINE -->
+<section class="bloc" style="background: var(--bg-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="demo-row">
+      <div class="demo-text">
+        <span class="eyebrow">Histórico completo</span>
+        <h3 style="margin-top: 12px;">Cada despacho. Cada edição. Em ordem.</h3>
+        <p>O status atual é só a ponta do iceberg. Para cada marca, mantemos toda a linha do tempo de despachos da RPI — desde o depósito até a concessão.</p>
+        <ul>
+          <li>Despachos vinculados à edição exata da RPI em que apareceram</li>
+          <li>Descrição oficial do despacho preservada (não interpretamos por você)</li>
+          <li>Histórico exportável via API — JSON ou CSV</li>
+          <li>Notificação automática quando o status muda</li>
+        </ul>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-head">
+          <div>
+            <div class="demo-card-title">MERIDIANA</div>
+            <div class="demo-card-subtitle">923.456.789 · classe 35</div>
+          </div>
+          <span class="badge badge-success">Deferido</span>
+        </div>
+        <div class="timeline">
+          <div class="tl-item now">
+            <span class="tl-dot"></span>
+            <div>
+              <div class="tl-status">Marca deferida</div>
+              <div class="tl-desc">Despacho 156.1 — Marca deferida para registro</div>
+            </div>
+            <div class="tl-meta">RPI 2826<br/>14 mai 2026</div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-dot"></span>
+            <div>
+              <div class="tl-status">Em exame de mérito</div>
+              <div class="tl-desc">Despacho 022.1 — Processo encaminhado para exame</div>
+            </div>
+            <div class="tl-meta">RPI 2818<br/>19 mar 2026</div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-dot"></span>
+            <div>
+              <div class="tl-status">Publicação do pedido</div>
+              <div class="tl-desc">Despacho 003.1 — Pedido publicado para oposição</div>
+            </div>
+            <div class="tl-meta">RPI 2810<br/>22 jan 2026</div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-dot"></span>
+            <div>
+              <div class="tl-status">Depósito</div>
+              <div class="tl-desc">Pedido de registro depositado no INPI</div>
+            </div>
+            <div class="tl-meta">RPI 2806<br/>11 dez 2025</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="bloc" id="precos">
+  <div class="container">
+    <div class="bloc-head">
+      <span class="eyebrow">Preço</span>
+      <h2>Você só paga pelo que usar.</h2>
+      <p>Sem planos, sem degraus, sem limite de marcas. Você cadastra o cartão no signup, mas a cobrança só acontece no fim do mês.</p>
+    </div>
+
+    <div class="pricing-wrap">
+      <div class="pricing-card featured">
+        <div class="pc-label" style="color: rgba(250,250,250,.55);">Tudo incluso</div>
+        <div class="pc-price">R$ 0,30<small> / consulta de status</small></div>
+        <div class="pc-sub">Cada marca recebe 4 consultas por mês (uma por edição da RPI). Você paga só pelas consultas executadas no mês.</div>
+        <div class="pc-rows">
+          <div class="pc-row">
+            <div>
+              <div class="pc-row-name">Consulta semanal de status</div>
+              <div class="pc-row-sub">4× por mês, por marca cadastrada</div>
+            </div>
+            <div class="pc-row-price">R$ 0,30</div>
+          </div>
+          <div class="pc-row">
+            <div>
+              <div class="pc-row-name">Requisição via API <span style="opacity:.6;font-size:11px;">(em breve)</span></div>
+              <div class="pc-row-sub">GET /trademarks por número</div>
+            </div>
+            <div class="pc-row-price">R$ 0,0001</div>
+          </div>
+          <div class="pc-row">
+            <div>
+              <div class="pc-row-name">Histórico, webhooks, membros, dashboard</div>
+              <div class="pc-row-sub">Tudo incluso, sem custo extra</div>
+            </div>
+            <div class="pc-row-price">R$ 0,00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="calc">
+        <div class="calc-title">Estime sua fatura mensal</div>
+        <div class="calc-row">
+          <div class="calc-slider-row">
+            <label for="calc-marcas" class="muted">Marcas monitoradas</label>
+            <span class="calc-slider-val" id="calc-marcas-val">50</span>
+          </div>
+          <input type="range" id="calc-marcas" min="1" max="1000" step="1" value="50" />
+        </div>
+        <div class="calc-row">
+          <div class="calc-slider-row">
+            <label for="calc-api" class="muted">Requisições API / mês <span style="font-size: 11px; color: var(--fg-disabled);">(em breve)</span></label>
+            <span class="calc-slider-val" id="calc-api-val">0</span>
+          </div>
+          <input type="range" id="calc-api" min="0" max="100000" step="500" value="0" />
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">Fatura estimada</div>
+          <div class="calc-result-val" id="calc-total">R$ 60,00</div>
+          <div class="calc-result-sub" id="calc-breakdown">50 marcas × 4 consultas × R$ 0,30</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BILLING PROMISE -->
+<section class="bloc" id="faq" style="padding-top: 0;">
+  <div class="container">
+    <div class="promise">
+      <div class="promise-item">
+        <div class="promise-icon">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="1"/><path d="M2 7h12"/></svg>
+        </div>
+        <h4>Zero no cadastro</h4>
+        <p>O cartão entra no signup só pra validar e ficar pronto. Nenhuma cobrança acontece quando você cria a conta — nem teste, nem pre-autorização.</p>
+      </div>
+      <div class="promise-item">
+        <div class="promise-icon">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M5 1v3M11 1v3M2 6h12"/></svg>
+        </div>
+        <h4>Cobrança no fim do mês</h4>
+        <p>No primeiro dia útil do mês seguinte, somamos as consultas executadas e cobramos exatamente esse valor. Nada de mensalidade fixa.</p>
+      </div>
+      <div class="promise-item">
+        <div class="promise-icon">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M2 8l4-4M2 8l4 4"/></svg>
+        </div>
+        <h4>Cancele a qualquer hora</h4>
+        <p>Removeu uma marca no meio do mês? Você só paga pelas consultas que ela já recebeu. Pausou a conta? A próxima fatura é a última.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API -->
+<section class="bloc" id="api" style="border-top: 1px solid var(--border);">
+  <div class="container">
+    <div class="api-row">
+      <div>
+        <span class="eyebrow">Para desenvolvedores</span>
+        <h2 style="margin-top: 12px; font-size: clamp(28px, 3.5vw, 38px); font-weight: 500; letter-spacing: -0.025em; line-height: 1.15;">REST simples, JWT, retorno em JSON.</h2>
+        <p style="color: var(--fg-muted); margin-top: 16px; font-size: 16px; line-height: 1.55;">
+          Toda a plataforma é coberta pela API. Cadastre marcas, consulte status,
+          puxe o histórico de despachos e integre direto no seu sistema interno.
+        </p>
+        <div style="margin-top: 24px; display: flex; gap: 10px;">
+          <a href="#" class="btn btn-secondary">Documentação</a>
+          <a href="signup.html" class="btn btn-primary">Pegar API key</a>
+        </div>
+      </div>
+      <div class="code-block">
+<span class="c"># Adicionar uma marca ao monitoramento</span>
+<span class="k">curl</span> -X POST https://api.onoma.app/trademarks \
+  -H <span class="s">"Authorization: Bearer $ONOMA_TOKEN"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "process_number": "923456789",
+    "name": "MERIDIANA"
+  }'</span>
+
+<span class="c"># Resposta — 201 Created</span>
+<span class="p">{</span>
+  <span class="s">"id"</span>: <span class="s">"a3f9..."</span>,
+  <span class="s">"process_number"</span>: <span class="s">"923456789"</span>,
+  <span class="s">"name"</span>: <span class="s">"MERIDIANA"</span>,
+  <span class="s">"current_status"</span>: <span class="s">"Deferido"</span>,
+  <span class="s">"last_rpi_edition"</span>: <span class="n">2826</span>,
+  <span class="s">"last_updated"</span>: <span class="s">"2026-05-14T14:30:00Z"</span>
+<span class="p">}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="container">
+    <h2>Pare de ler RPI no PDF.</h2>
+    <p>5 minutos pra cadastrar. Cobrança só no fim do mês, e só pelo que rodar.</p>
+    <a href="signup.html" class="btn btn-primary btn-lg">Criar conta na Onoma</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="onoma-logo" style="margin-bottom: 12px;">
+          <svg viewBox="440 370 1170 270" style="height:22px;"><use href="#root"/></svg>
+        </div>
+        <p style="font-size: 13px; color: var(--fg-subtle); line-height: 1.55; max-width: 260px;">Monitoramento automático de marcas registradas no INPI. Feito para escritórios e empresas com portfólio.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Produto</h5>
+        <a href="#produto">Como funciona</a>
+        <a href="#precos">Preços</a>
+        <a href="#api">API</a>
+        <a href="login.html">Entrar</a>
+      </div>
+      <div class="foot-col">
+        <h5>Empresa</h5>
+        <a href="#">Sobre</a>
+        <a href="#">Contato</a>
+        <a href="#">Status</a>
+      </div>
+      <div class="foot-col">
+        <h5>Legal</h5>
+        <a href="#">Termos</a>
+        <a href="#">Privacidade</a>
+        <a href="#">LGPD</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Onoma. Não somos afiliados ao INPI.</span>
+      <span class="mono">v1.0</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const marcas = document.getElementById('calc-marcas');
+  const marcasVal = document.getElementById('calc-marcas-val');
+  const api = document.getElementById('calc-api');
+  const apiVal = document.getElementById('calc-api-val');
+  const total = document.getElementById('calc-total');
+  const breakdown = document.getElementById('calc-breakdown');
+
+  const fmt = (v) => 'R$ ' + v.toFixed(2).replace('.', ',');
+  const fmtNum = (n) => n.toLocaleString('pt-BR');
+
+  function update() {
+    const m = parseInt(marcas.value, 10);
+    const a = parseInt(api.value, 10);
+    marcasVal.textContent = fmtNum(m);
+    apiVal.textContent = fmtNum(a);
+    const marcasCost = m * 4 * 0.30;
+    const apiCost = a * 0.0001;
+    const sum = marcasCost + apiCost;
+    total.textContent = fmt(sum);
+    let bd = `${fmtNum(m)} marca${m > 1 ? 's' : ''} × 4 consultas × R$ 0,30`;
+    if (a > 0) bd += ` + ${fmtNum(a)} requisições API × R$ 0,0001`;
+    breakdown.textContent = bd;
+  }
+  marcas.addEventListener('input', update);
+  api.addEventListener('input', update);
+  update();
+})();
+</script>
+</body>
+</html>

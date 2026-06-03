@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard · Onoma</title>
+<link rel="stylesheet" href="assets/styles.css" />
+<style>
+body {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  background: var(--bg-subtle);
+  border-right: 1px solid var(--border);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.sb-logo svg { height: 18px; color: var(--fg); }
+
+.tenant-switcher {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  margin-bottom: 10px;
+}
+.tenant-switcher:hover { background: var(--bg-hover); }
+.tenant-avatar {
+  width: 26px; height: 26px;
+  border-radius: var(--r-sm);
+  background: var(--fg);
+  color: var(--fg-inverse);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tenant-info { flex: 1; min-width: 0; }
+.tenant-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tenant-plan { font-size: 11px; color: var(--fg-subtle); }
+.tenant-caret { color: var(--fg-subtle); }
+
+.sb-section {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-subtle);
+  padding: 14px 10px 4px;
+  font-weight: 500;
+}
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-weight: 450;
+  position: relative;
+}
+.sb-item:hover { background: var(--bg-hover); color: var(--fg); }
+.sb-item.active { background: var(--bg-elevated); color: var(--fg); font-weight: 500; border: 1px solid var(--border); box-shadow: var(--shadow-xs); }
+.sb-item.active::before {
+  content: ""; position: absolute; left: -3px; top: 8px; bottom: 8px; width: 2px; background: var(--fg); border-radius: 1px;
+}
+.sb-icon { width: 15px; height: 15px; flex-shrink: 0; }
+.sb-item .count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-subtle);
+  background: var(--bg-subtle);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border);
+}
+.sb-item.active .count { background: var(--bg-subtle); }
+
+.sb-bottom {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.sb-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.sb-user:hover { background: var(--bg-hover); }
+.sb-user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #525252, #0a0a0a);
+  color: var(--fg-inverse);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+}
+.sb-user-info { flex: 1; min-width: 0; }
+.sb-user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-user-email { font-size: 11px; color: var(--fg-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ============ MAIN ============ */
+.main { display: flex; flex-direction: column; }
+
+/* Top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  justify-content: space-between;
+  gap: 16px;
+}
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-subtle);
+}
+.breadcrumbs .crumb-current { color: var(--fg); font-weight: 500; }
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  width: 280px;
+  font-size: 13px;
+  color: var(--fg-subtle);
+  cursor: text;
+}
+.search-bar kbd {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--bg-elevated);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  color: var(--fg-subtle);
+}
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+/* Content area */
+.content {
+  padding: 32px;
+  max-width: 1280px;
+  width: 100%;
+}
+
+/* Page header */
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 24px;
+}
+.page-title-h {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 4px;
+}
+.page-title-sub {
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+.page-actions { display: flex; gap: 8px; align-items: center; }
+
+/* KPI grid */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+}
+.kpi-label {
+  font-size: 12px;
+  color: var(--fg-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kpi-value {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-top: 8px;
+  font-feature-settings: "tnum" 1;
+}
+.kpi-value small { font-size: 16px; color: var(--fg-muted); font-weight: 400; }
+.kpi-delta {
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-delta.up { color: var(--success); }
+.kpi-delta.down { color: var(--danger); }
+.kpi-delta-icon { width: 12px; height: 12px; }
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Chart card */
+.chart-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.chart-title { font-size: 15px; font-weight: 500; }
+.chart-sub { font-size: 12px; color: var(--fg-subtle); margin-top: 2px; }
+.chart-tabs {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+.chart-tab {
+  font-size: 12px;
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.chart-tab + .chart-tab { border-left: 1px solid var(--border); }
+.chart-tab.active { background: var(--bg-subtle); color: var(--fg); font-weight: 500; }
+
+.chart-body {
+  height: 240px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding-top: 12px;
+}
+.bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.bar {
+  background: var(--fg);
+  border-radius: 3px 3px 0 0;
+  transition: opacity .2s;
+}
+.bar:hover { opacity: .75; }
+.bar.muted { background: var(--border-strong); }
+.bar-label {
+  font-size: 10px;
+  text-align: center;
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+}
+.chart-legend {
+  display: flex; gap: 16px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+.legend-dot { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot span:first-child {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+
+/* Logs panel */
+.logs-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex; flex-direction: column;
+}
+.logs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.logs-list { display: flex; flex-direction: column; }
+.log-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 13px;
+}
+.log-row + .log-row { border-top: 1px solid var(--border-subtle); }
+.log-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+}
+.log-dot.warn { background: var(--warn); }
+.log-dot.err { background: var(--danger); }
+.log-title { font-size: 13px; }
+.log-meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-subtle); }
+.log-time { font-family: var(--font-mono); font-size: 11px; color: var(--fg-subtle); }
+
+/* Trademarks table */
+.section-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.section-card-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.section-card-title { font-size: 15px; font-weight: 500; }
+.section-card-sub { font-size: 12px; color: var(--fg-subtle); margin-top: 2px; }
+
+.tm-table {
+  display: flex;
+  flex-direction: column;
+}
+.tm-row-head, .tm-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr 1.3fr 1fr .8fr 24px;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 16px;
+  font-size: 13px;
+}
+.tm-row-head {
+  background: var(--bg-subtle);
+  color: var(--fg-subtle);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+.tm-row + .tm-row { border-top: 1px solid var(--border-subtle); }
+.tm-row:hover { background: var(--bg-subtle); }
+.tm-name { font-weight: 500; }
+.tm-process { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); }
+.tm-time { font-family: var(--font-mono); font-size: 11px; color: var(--fg-subtle); }
+.tm-edition { font-family: var(--font-mono); font-size: 11px; color: var(--fg-subtle); }
+.tm-action {
+  color: var(--fg-subtle);
+  cursor: pointer;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+}
+.tm-action:hover { background: var(--bg-hover); color: var(--fg); }
+
+/* View switching */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Billing view */
+.bill-hero {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+.bill-hero-label { font-size: 12px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: .04em; }
+.bill-hero-amount { font-size: 56px; font-weight: 500; letter-spacing: -0.035em; line-height: 1; margin-top: 6px; font-feature-settings: "tnum" 1; }
+.bill-hero-amount small { font-size: 18px; color: var(--fg-muted); font-weight: 400; }
+.bill-hero-sub { font-size: 13px; color: var(--fg-muted); margin-top: 10px; }
+
+.bill-progress { width: 240px; }
+.bill-progress-meta {
+  display: flex; justify-content: space-between; font-size: 11px; color: var(--fg-subtle); margin-bottom: 6px;
+  font-family: var(--font-mono);
+}
+.progress-track {
+  width: 100%; height: 6px;
+  background: var(--bg-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--fg); border-radius: 3px; }
+.bill-progress-note { font-size: 11px; color: var(--fg-subtle); margin-top: 6px; text-align: center; }
+
+.bill-breakdown {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.bill-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 120px 120px;
+  padding: 14px 20px;
+  gap: 16px;
+  align-items: center;
+  font-size: 13px;
+}
+.bill-row-head {
+  background: var(--bg-subtle);
+  color: var(--fg-subtle);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.bill-row + .bill-row { border-top: 1px solid var(--border-subtle); }
+.bill-row .mono { font-family: var(--font-mono); }
+.bill-row .right { text-align: right; }
+.bill-row.total { background: var(--bg-subtle); border-top: 2px solid var(--fg); font-weight: 500; }
+
+.invoices-table .bill-row { grid-template-columns: 100px 1fr 100px 100px 100px; }
+
+.card-on-file {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.card-icon {
+  width: 48px; height: 32px;
+  background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+}
+.card-on-file-info { flex: 1; }
+.card-on-file-num { font-family: var(--font-mono); font-size: 14px; font-weight: 500; }
+.card-on-file-meta { font-size: 12px; color: var(--fg-subtle); margin-top: 2px; }
+
+/* Placeholder for stub views */
+.placeholder-view {
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 64px;
+  text-align: center;
+  color: var(--fg-muted);
+}
+.placeholder-view h3 { font-size: 18px; margin-bottom: 8px; color: var(--fg); }
+.placeholder-view p { max-width: 380px; margin: 0 auto; font-size: 14px; }
+
+/* Banner */
+.banner-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+.banner-info-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--bg-subtle);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.banner-info strong { font-weight: 500; }
+.banner-info .muted { color: var(--fg-muted); }
+.banner-close { margin-left: auto; color: var(--fg-subtle); cursor: pointer; background: none; border: none; font-size: 18px; line-height: 1; }
+
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  body { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .content { padding: 20px; }
+  .search-bar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGO SYMBOL -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="root" viewBox="440 370 1170 270">
+      <path fill="currentColor" d="M 1500.39 453.408 C 1501.44 453.356 1502.49 453.318 1503.54 453.294 C 1525.01 452.81 1542.21 459.021 1557.63 473.817 L 1557.88 456.824 L 1594.06 456.725 L 1594.04 619.155 L 1557.77 619.13 L 1557.77 601.171 C 1551.64 607.372 1547.59 610.304 1540.16 614.519 C 1532.02 618.408 1523.26 620.829 1514.28 621.671 C 1491.18 624.223 1468.03 617.428 1449.97 602.801 C 1432.89 588.497 1422.17 568.015 1420.14 545.829 C 1415.43 494.805 1450.53 457.877 1500.39 453.408 z M 1500.59 488.219 C 1527.7 484.344 1552.87 503.056 1556.98 530.14 C 1561.08 557.223 1542.58 582.549 1515.53 586.877 C 1488.16 591.255 1462.47 572.486 1458.32 545.081 C 1454.17 517.676 1473.15 492.141 1500.59 488.219 z M 566.471 383.409 C 594.393 381.417 616.016 387.654 639.856 401.642 C 630.645 410.798 621.524 420.043 612.494 429.377 C 602.966 424.912 592.732 422.142 582.253 421.191 C 560.247 419.223 538.376 426.195 521.57 440.536 C 504.937 454.718 494.615 474.923 492.873 496.712 C 491.028 518.185 497.973 539.487 512.119 555.747 C 526.77 572.554 547.517 582.827 569.765 584.292 C 591.774 585.858 613.498 578.578 630.118 564.067 C 646.606 549.376 656.539 528.705 657.705 506.653 C 659.072 482.521 650.204 463.355 634.472 445.721 C 639.679 440.756 657.256 421.35 661.906 419.806 L 664.284 421.608 C 682.407 439.927 693.595 465.277 696.204 490.816 C 699.366 522.392 689.945 553.942 669.987 578.615 C 627.409 630.344 547.014 636.832 495.936 594.129 C 471.829 574.122 456.738 545.294 454.034 514.082 C 451.065 482.158 461.099 450.385 481.866 425.956 C 504.029 399.756 532.583 386.307 566.471 383.409 z M 999.6 451.497 C 1047.23 448.213 1088.51 484.136 1091.83 531.758 C 1095.16 579.38 1059.27 620.693 1011.65 624.062 C 963.973 627.436 922.596 591.495 919.266 543.812 C 915.935 496.128 951.914 454.784 999.6 451.497 z M 998.332 488.147 C 1025.56 484.104 1050.94 502.818 1055.13 530.026 C 1059.32 557.234 1040.74 582.714 1013.55 587.047 C 986.163 591.412 960.448 572.663 956.229 545.249 C 952.009 517.835 970.896 492.22 998.332 488.147 z M 1205.57 453.398 C 1230.54 450.648 1252.82 462.871 1266.24 483.43 C 1268.72 479.431 1271.62 475.713 1274.9 472.34 C 1299.63 447.121 1347.06 446.853 1372.16 471.667 C 1395.68 494.913 1392 530.951 1391.96 561.337 L 1391.84 619.16 L 1355.57 619.184 L 1355.69 560.404 C 1355.71 545.665 1356.46 531.107 1353.74 516.556 C 1348.01 485.748 1308.15 479.597 1288 500.067 C 1272.59 515.726 1276.7 547.69 1276.84 568.5 L 1276.89 619.184 L 1240.34 619.173 L 1240.44 557.757 C 1240.48 538.806 1243.49 512.864 1229.44 498.408 C 1215.31 484.027 1187.65 485.075 1173.83 499.348 C 1158.51 515.153 1161.74 539.466 1161.83 559.983 L 1161.92 619.144 L 1125.29 619.182 C 1125.36 566.792 1123.84 508.403 1125.45 456.752 L 1161.92 456.763 L 1162 473.373 C 1175.72 459.741 1186.66 455.226 1205.57 453.398 z M 814.303 453.41 C 833.356 451.659 855.783 459.1 869.345 472.795 C 893.34 497.027 889.944 530.572 889.916 561.868 L 889.819 619.146 L 853.265 619.162 C 853.305 607.098 853.198 594.775 853.377 582.719 C 853.994 541.095 861.956 473.449 795.196 490.698 C 789.713 492.717 783.815 496.357 779.694 500.476 C 774.045 506.163 770.111 513.326 768.342 521.145 C 765.999 531.068 766.794 552.413 766.849 563.449 L 766.967 619.161 L 730.276 619.128 L 730.228 456.718 L 766.987 456.71 L 767.054 474.426 C 781.795 459.827 793.993 455.18 814.303 453.41 z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar">
+  <div class="sb-top">
+    <a href="index.html" class="sb-logo" aria-label="Onoma">
+      <svg viewBox="440 370 1170 270"><use href="#root"/></svg>
+    </a>
+    <button class="btn btn-ghost" style="height:26px;padding:0 6px;font-size:11px;" title="Notificações">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0110 0v3l1.5 2.5h-13L3 9V6zM6 13a2 2 0 004 0"/></svg>
+    </button>
+  </div>
+
+  <div class="tenant-switcher">
+    <div class="tenant-avatar">SA</div>
+    <div class="tenant-info">
+      <div class="tenant-name">Silva & Associados PI</div>
+      <div class="tenant-plan">Usage-based</div>
+    </div>
+    <svg class="tenant-caret" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l3-3 3 3M3 7l3 3 3-3"/></svg>
+  </div>
+
+  <div class="sb-item active" data-view="overview">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx=".5"/><rect x="9" y="2" width="5" height="5" rx=".5"/><rect x="2" y="9" width="5" height="5" rx=".5"/><rect x="9" y="9" width="5" height="5" rx=".5"/></svg>
+    Overview
+  </div>
+  <div class="sb-item" data-view="trademarks">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12M5 4V2.5M11 4V2.5"/></svg>
+    Marcas
+    <span class="count">142</span>
+  </div>
+  <div class="sb-item" data-view="logs">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h10v10H3z"/><path d="M5 6h6M5 9h6M5 11h4"/></svg>
+    Logs RPI
+  </div>
+  <div class="sb-item" data-view="webhooks">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="4" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="4" cy="12" r="1.5"/><path d="M5.3 4.8l5 5M4 5.5v5M5.3 12h5.4"/></svg>
+    Webhooks
+  </div>
+
+  <div class="sb-section">Conta</div>
+  <div class="sb-item" data-view="team">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2.5"/><path d="M2 13c0-2.2 1.8-4 4-4s4 1.8 4 4M11 7a2 2 0 100-4 2 2 0 000 4zM14 13c0-1.6-.9-3-2.2-3.6"/></svg>
+    Time
+  </div>
+  <div class="sb-item" data-view="billing">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="1"/><path d="M2 7h12"/></svg>
+    Billing
+  </div>
+  <div class="sb-item" data-view="settings">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M14.4 4.4l-1.4 1.4M3 11l-1.4 1.4M15 8h-2M3 8H1M14.4 11.6 13 10.2M3 5 1.6 3.6"/></svg>
+    Configurações
+  </div>
+
+  <div class="sb-section">Desenvolvedores</div>
+  <div class="sb-item" data-view="api-keys">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="8" r="3"/><path d="M9 8h6M12 8v2M15 8v3"/></svg>
+    API keys
+  </div>
+  <div class="sb-item" data-view="docs">
+    <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h7l3 3v9H3V2z"/><path d="M10 2v3h3M5 7h6M5 10h6M5 12h4"/></svg>
+    Documentação
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-user-avatar">RS</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">Renata Silva</div>
+        <div class="sb-user-email">renata@silva-pi.com.br</div>
+      </div>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--fg-subtle);"><path d="M3 5l3-3 3 3M3 7l3 3 3-3"/></svg>
+    </div>
+  </div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+  <header class="topbar">
+    <div class="breadcrumbs">
+      <span>Silva & Associados PI</span>
+      <span>/</span>
+      <span class="crumb-current" id="crumb">Overview</span>
+    </div>
+    <div class="topbar-right">
+      <div class="search-bar">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="m13 13-2.7-2.7"/></svg>
+        <span>Buscar marca, processo ou despacho</span>
+        <kbd>⌘K</kbd>
+      </div>
+      <button class="btn btn-secondary btn-sm">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h7l3 3v9H3V2z"/><path d="M10 2v3h3M5 8h6M5 11h4"/></svg>
+        Docs
+      </button>
+      <button class="btn btn-primary btn-sm">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg>
+        Adicionar marca
+      </button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ============== OVERVIEW VIEW ============== -->
+    <section class="view active" data-view-pane="overview">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Boa tarde, Renata.</h1>
+          <p class="page-title-sub">RPI 2826 importada hoje às 09:14. Encontramos 23 novos despachos para suas marcas.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M3 14h10"/></svg>
+            Exportar CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="banner-info" id="banner">
+        <div class="banner-info-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5M8 11v.5"/></svg>
+        </div>
+        <div>
+          <strong>Sua próxima fatura fecha em 31 mai</strong>
+          <span class="muted"> · Você só será cobrado pelas consultas executadas no mês. Veja o acumulado em </span>
+          <a href="#" onclick="setView('billing'); return false;" style="text-decoration: underline; text-underline-offset: 2px;">Billing</a>.
+        </div>
+        <button class="banner-close" onclick="document.getElementById('banner').remove()">×</button>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi-card">
+          <div class="kpi-label">Marcas monitoradas</div>
+          <div class="kpi-value">142</div>
+          <div class="kpi-delta up">
+            <svg class="kpi-delta-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l3-3 3 3"/></svg>
+            +8 este mês
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Despachos no mês</div>
+          <div class="kpi-value">23</div>
+          <div class="kpi-delta">11 deferidos · 4 exigências</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Consultas executadas</div>
+          <div class="kpi-value">568</div>
+          <div class="kpi-delta">142 marcas × 4 RPIs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Fatura prevista</div>
+          <div class="kpi-value">R$ 170<small>,40</small></div>
+          <div class="kpi-delta">fecha em 31 mai</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Uso mensal</div>
+              <div class="chart-sub">Consultas executadas por mês · últimos 6 meses</div>
+            </div>
+            <div class="chart-tabs">
+              <button class="chart-tab">Marcas</button>
+              <button class="chart-tab active">Consultas</button>
+              <button class="chart-tab">Custo</button>
+            </div>
+          </div>
+          <div class="chart-body" id="chart"></div>
+          <div class="chart-legend">
+            <span class="legend-dot"><span style="background: var(--fg);"></span> Consultas concluídas</span>
+            <span class="legend-dot"><span style="background: var(--border-strong);"></span> Estimativa do mês corrente</span>
+          </div>
+        </div>
+
+        <div class="logs-card">
+          <div class="logs-head">
+            <div>
+              <div class="chart-title">Importações recentes</div>
+              <div class="chart-sub">Últimas execuções do parser RPI</div>
+            </div>
+            <a href="#" style="font-size: 12px; color: var(--fg-muted);" onclick="setView('logs'); return false;">Ver tudo →</a>
+          </div>
+          <div class="logs-list">
+            <div class="log-row">
+              <span class="log-dot"></span>
+              <div>
+                <div class="log-title">RPI 2826 processada</div>
+                <div class="log-meta">142 marcas verificadas · 23 atualizações</div>
+              </div>
+              <div class="log-time">hoje 09:14</div>
+            </div>
+            <div class="log-row">
+              <span class="log-dot"></span>
+              <div>
+                <div class="log-title">RPI 2825 processada</div>
+                <div class="log-meta">142 marcas verificadas · 8 atualizações</div>
+              </div>
+              <div class="log-time">07/05 09:11</div>
+            </div>
+            <div class="log-row">
+              <span class="log-dot warn"></span>
+              <div>
+                <div class="log-title">RPI 2824 — parcial</div>
+                <div class="log-meta">XML incompleto · retentativa às 09:35</div>
+              </div>
+              <div class="log-time">30/04 09:22</div>
+            </div>
+            <div class="log-row">
+              <span class="log-dot"></span>
+              <div>
+                <div class="log-title">RPI 2823 processada</div>
+                <div class="log-meta">138 marcas verificadas · 12 atualizações</div>
+              </div>
+              <div class="log-time">23/04 09:08</div>
+            </div>
+            <div class="log-row">
+              <span class="log-dot"></span>
+              <div>
+                <div class="log-title">RPI 2822 processada</div>
+                <div class="log-meta">138 marcas verificadas · 5 atualizações</div>
+              </div>
+              <div class="log-time">16/04 09:12</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head">
+          <div>
+            <div class="section-card-title">Movimentações recentes</div>
+            <div class="section-card-sub">Marcas com despacho na última edição</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="setView('trademarks')">Ver todas as marcas →</button>
+        </div>
+        <div class="tm-table">
+          <div class="tm-row-head">
+            <span>Marca</span><span>Processo</span><span>Status atual</span><span>Edição</span><span>Atualização</span><span></span>
+          </div>
+          <div class="tm-row"><span class="tm-name">MERIDIANA</span><span class="tm-process">923.456.789</span><span><span class="badge badge-success">Deferido</span></span><span class="tm-edition">RPI 2826</span><span class="tm-time">há 4h</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">ALTAVOZ</span><span class="tm-process">923.561.110</span><span><span class="badge badge-warn">Exigência</span></span><span class="tm-edition">RPI 2826</span><span class="tm-time">há 4h</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">PETALA</span><span class="tm-process">923.107.044</span><span><span class="badge">Em exame</span></span><span class="tm-edition">RPI 2826</span><span class="tm-time">há 4h</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">FAROLITO</span><span class="tm-process">922.890.512</span><span><span class="badge badge-success">Concedido</span></span><span class="tm-edition">RPI 2826</span><span class="tm-time">há 4h</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">CORVO BRANCO</span><span class="tm-process">923.778.231</span><span><span class="badge badge-danger">Indeferido</span></span><span class="tm-edition">RPI 2826</span><span class="tm-time">há 4h</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">ATLÂNTICA STUDIOS</span><span class="tm-process">923.992.001</span><span><span class="badge badge-success">Publicação</span></span><span class="tm-edition">RPI 2826</span><span class="tm-time">há 4h</span><span class="tm-action">›</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== TRADEMARKS VIEW ============== -->
+    <section class="view" data-view-pane="trademarks">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Marcas</h1>
+          <p class="page-title-sub">142 marcas monitoradas · próxima atualização: terça 09:00</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm">Importar CSV</button>
+          <button class="btn btn-primary btn-sm">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg>
+            Adicionar marca
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <div style="position: relative; flex: 1;">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--fg-subtle);"><circle cx="7" cy="7" r="4.5"/><path d="m13 13-2.7-2.7"/></svg>
+          <input class="input" placeholder="Buscar por nome, número ou status…" style="padding-left: 34px;" />
+        </div>
+        <select class="select" style="width: 160px;">
+          <option>Todos os status</option>
+          <option>Deferido</option>
+          <option>Exigência</option>
+          <option>Em exame</option>
+          <option>Indeferido</option>
+        </select>
+        <select class="select" style="width: 140px;">
+          <option>Toda RPI</option>
+          <option>Últimas 4</option>
+          <option>RPI 2826</option>
+        </select>
+      </div>
+
+      <div class="section-card">
+        <div class="tm-table">
+          <div class="tm-row-head">
+            <span>Marca</span><span>Processo</span><span>Status atual</span><span>Edição</span><span>Atualização</span><span></span>
+          </div>
+          <div class="tm-row"><span class="tm-name">MERIDIANA</span><span class="tm-process">923.456.789</span><span><span class="badge badge-success">Deferido</span></span><span class="tm-edition">2826</span><span class="tm-time">14/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">ALTAVOZ</span><span class="tm-process">923.561.110</span><span><span class="badge badge-warn">Exigência</span></span><span class="tm-edition">2826</span><span class="tm-time">14/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">PETALA</span><span class="tm-process">923.107.044</span><span><span class="badge">Em exame</span></span><span class="tm-edition">2826</span><span class="tm-time">14/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">FAROLITO</span><span class="tm-process">922.890.512</span><span><span class="badge badge-success">Concedido</span></span><span class="tm-edition">2826</span><span class="tm-time">14/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">CORVO BRANCO</span><span class="tm-process">923.778.231</span><span><span class="badge badge-danger">Indeferido</span></span><span class="tm-edition">2826</span><span class="tm-time">14/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">ATLÂNTICA STUDIOS</span><span class="tm-process">923.992.001</span><span><span class="badge badge-success">Publicação</span></span><span class="tm-edition">2826</span><span class="tm-time">14/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">SAÍRA</span><span class="tm-process">923.114.778</span><span><span class="badge badge-success">Deferido</span></span><span class="tm-edition">2825</span><span class="tm-time">07/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">NORDE</span><span class="tm-process">922.667.119</span><span><span class="badge">Em exame</span></span><span class="tm-edition">2825</span><span class="tm-time">07/05</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">VOLTA REDONDA</span><span class="tm-process">921.882.444</span><span><span class="badge badge-success">Concedido</span></span><span class="tm-edition">2824</span><span class="tm-time">30/04</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">BARCAROLA</span><span class="tm-process">923.001.776</span><span><span class="badge badge-warn">Exigência</span></span><span class="tm-edition">2824</span><span class="tm-time">30/04</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">CINZA-PRETO</span><span class="tm-process">923.445.221</span><span><span class="badge">Em exame</span></span><span class="tm-edition">2823</span><span class="tm-time">23/04</span><span class="tm-action">›</span></div>
+          <div class="tm-row"><span class="tm-name">ORQUÍDEA</span><span class="tm-process">923.667.998</span><span><span class="badge badge-success">Deferido</span></span><span class="tm-edition">2823</span><span class="tm-time">23/04</span><span class="tm-action">›</span></div>
+        </div>
+        <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); background: var(--bg-subtle);">
+          <span style="font-size: 12px; color: var(--fg-subtle);" class="mono">1–12 de 142</span>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-secondary btn-sm">←</button>
+            <button class="btn btn-secondary btn-sm">→</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== BILLING VIEW ============== -->
+    <section class="view" data-view-pane="billing">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Billing</h1>
+          <p class="page-title-sub">Cobrança usage-based · ciclo mensal fecha no último dia do mês</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm">Trocar cartão</button>
+          <button class="btn btn-secondary btn-sm">Baixar histórico</button>
+        </div>
+      </div>
+
+      <div class="bill-hero">
+        <div>
+          <div class="bill-hero-label">Fatura em construção · maio 2026</div>
+          <div class="bill-hero-amount">R$ 170<small>,40</small></div>
+          <div class="bill-hero-sub">568 consultas executadas até agora · próxima cobrança em 31 mai 2026</div>
+        </div>
+        <div class="bill-progress">
+          <div class="bill-progress-meta">
+            <span>14 mai</span>
+            <span>31 mai</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 45%;"></div>
+          </div>
+          <div class="bill-progress-note">17 dias restantes no ciclo</div>
+        </div>
+      </div>
+
+      <div class="bill-breakdown">
+        <div class="bill-row bill-row-head" style="display: grid;">
+          <span>Item</span>
+          <span class="right">Quantidade</span>
+          <span class="right">Preço unitário</span>
+          <span class="right">Total</span>
+        </div>
+        <div class="bill-row">
+          <div>
+            <div>Consultas semanais de status</div>
+            <div style="color: var(--fg-subtle); font-size: 12px; margin-top: 2px;">142 marcas × 4 edições (RPI 2823–2826)</div>
+          </div>
+          <span class="right mono">568</span>
+          <span class="right mono">R$ 0,30</span>
+          <span class="right mono">R$ 170,40</span>
+        </div>
+        <div class="bill-row">
+          <div>
+            <div>Requisições API <span class="badge" style="font-size: 10px; height: 18px;">em breve</span></div>
+            <div style="color: var(--fg-subtle); font-size: 12px; margin-top: 2px;">GET /trademarks por número</div>
+          </div>
+          <span class="right mono">0</span>
+          <span class="right mono">R$ 0,0001</span>
+          <span class="right mono">R$ 0,00</span>
+        </div>
+        <div class="bill-row total">
+          <span>Subtotal · maio 2026</span>
+          <span></span>
+          <span></span>
+          <span class="right mono">R$ 170,40</span>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card-on-file">
+          <div class="card-icon">VISA</div>
+          <div class="card-on-file-info">
+            <div class="card-on-file-num">•••• •••• •••• 4242</div>
+            <div class="card-on-file-meta">Expira 09/28 · Renata Silva · cartão principal</div>
+          </div>
+          <button class="btn btn-secondary btn-sm">Trocar</button>
+        </div>
+        <div class="card-on-file" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+          <div class="kpi-label">Próxima cobrança</div>
+          <div style="font-size: 24px; font-weight: 500; letter-spacing: -0.02em;" class="mono">31 mai 2026</div>
+          <div style="font-size: 12px; color: var(--fg-subtle);">Você receberá um email com a fatura no dia anterior.</div>
+        </div>
+      </div>
+
+      <div class="section-card" style="margin-top: 24px;">
+        <div class="section-card-head">
+          <div>
+            <div class="section-card-title">Faturas anteriores</div>
+            <div class="section-card-sub">Histórico completo · exportável em PDF e CSV</div>
+          </div>
+        </div>
+        <div class="invoices-table">
+          <div class="bill-row bill-row-head" style="display: grid; grid-template-columns: 100px 1fr 100px 100px 100px;">
+            <span>Período</span><span>Descrição</span><span class="right">Consultas</span><span class="right">Valor</span><span class="right">Status</span>
+          </div>
+          <div class="bill-row" style="grid-template-columns: 100px 1fr 100px 100px 100px;"><span class="mono">abr 2026</span><span>138 marcas × 4 RPIs · ciclo completo</span><span class="right mono">552</span><span class="right mono">R$ 165,60</span><span class="right"><span class="badge badge-success">Paga</span></span></div>
+          <div class="bill-row" style="grid-template-columns: 100px 1fr 100px 100px 100px;"><span class="mono">mar 2026</span><span>134 marcas × 4 RPIs · ciclo completo</span><span class="right mono">536</span><span class="right mono">R$ 160,80</span><span class="right"><span class="badge badge-success">Paga</span></span></div>
+          <div class="bill-row" style="grid-template-columns: 100px 1fr 100px 100px 100px;"><span class="mono">fev 2026</span><span>128 marcas × 4 RPIs · ciclo completo</span><span class="right mono">512</span><span class="right mono">R$ 153,60</span><span class="right"><span class="badge badge-success">Paga</span></span></div>
+          <div class="bill-row" style="grid-template-columns: 100px 1fr 100px 100px 100px;"><span class="mono">jan 2026</span><span>120 marcas × 4 RPIs · ciclo completo</span><span class="right mono">480</span><span class="right mono">R$ 144,00</span><span class="right"><span class="badge badge-success">Paga</span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== LOGS VIEW ============== -->
+    <section class="view" data-view-pane="logs">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Logs RPI</h1>
+          <p class="page-title-sub">Histórico de processamento das edições da Revista da Propriedade Industrial</p>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="tm-row-head" style="display: grid; grid-template-columns: 80px 90px 1fr 100px 100px 100px;">
+          <span>Edição</span><span>Status</span><span>URL</span><span class="right">Encontradas</span><span class="right">Atualizadas</span><span class="right">Quando</span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 80px 90px 1fr 100px 100px 100px;"><span class="mono" style="font-weight:500;">2826</span><span><span class="badge badge-success">success</span></span><span class="mono" style="font-size:12px;color:var(--fg-subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">revistas.inpi.gov.br/.../RM2826.zip</span><span class="right mono">142</span><span class="right mono">23</span><span class="right tm-time">hoje 09:14</span></div>
+        <div class="tm-row" style="grid-template-columns: 80px 90px 1fr 100px 100px 100px;"><span class="mono" style="font-weight:500;">2825</span><span><span class="badge badge-success">success</span></span><span class="mono" style="font-size:12px;color:var(--fg-subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">revistas.inpi.gov.br/.../RM2825.zip</span><span class="right mono">142</span><span class="right mono">8</span><span class="right tm-time">07/05 09:11</span></div>
+        <div class="tm-row" style="grid-template-columns: 80px 90px 1fr 100px 100px 100px;"><span class="mono" style="font-weight:500;">2824</span><span><span class="badge badge-warn">partial</span></span><span class="mono" style="font-size:12px;color:var(--fg-subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">revistas.inpi.gov.br/.../RM2824.zip</span><span class="right mono">140</span><span class="right mono">14</span><span class="right tm-time">30/04 09:22</span></div>
+        <div class="tm-row" style="grid-template-columns: 80px 90px 1fr 100px 100px 100px;"><span class="mono" style="font-weight:500;">2823</span><span><span class="badge badge-success">success</span></span><span class="mono" style="font-size:12px;color:var(--fg-subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">revistas.inpi.gov.br/.../RM2823.zip</span><span class="right mono">138</span><span class="right mono">12</span><span class="right tm-time">23/04 09:08</span></div>
+        <div class="tm-row" style="grid-template-columns: 80px 90px 1fr 100px 100px 100px;"><span class="mono" style="font-weight:500;">2822</span><span><span class="badge badge-success">success</span></span><span class="mono" style="font-size:12px;color:var(--fg-subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">revistas.inpi.gov.br/.../RM2822.zip</span><span class="right mono">138</span><span class="right mono">5</span><span class="right tm-time">16/04 09:12</span></div>
+      </div>
+    </section>
+
+    <!-- ============== TEAM VIEW ============== -->
+    <section class="view" data-view-pane="team">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Time</h1>
+          <p class="page-title-sub">3 membros · convide quem precisar acessar os dados das marcas</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary btn-sm">Convidar membro</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="tm-row-head" style="grid-template-columns: 1fr 1.4fr 100px 110px 24px;">
+          <span>Membro</span><span>Email</span><span>Papel</span><span>Status</span><span></span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 1fr 1.4fr 100px 110px 24px;">
+          <span style="display:flex;align-items:center;gap:10px;"><span class="tenant-avatar" style="width:24px;height:24px;font-size:10px;background:linear-gradient(135deg,#525252,#0a0a0a);">RS</span><span class="tm-name">Renata Silva</span></span>
+          <span class="tm-process">renata@silva-pi.com.br</span>
+          <span><span class="badge">Admin</span></span>
+          <span><span class="badge badge-success">Ativo</span></span>
+          <span class="tm-action">···</span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 1fr 1.4fr 100px 110px 24px;">
+          <span style="display:flex;align-items:center;gap:10px;"><span class="tenant-avatar" style="width:24px;height:24px;font-size:10px;background:linear-gradient(135deg,#737373,#404040);">LM</span><span class="tm-name">Lucas Mendes</span></span>
+          <span class="tm-process">lucas@silva-pi.com.br</span>
+          <span><span class="badge">Membro</span></span>
+          <span><span class="badge badge-success">Ativo</span></span>
+          <span class="tm-action">···</span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 1fr 1.4fr 100px 110px 24px;">
+          <span style="display:flex;align-items:center;gap:10px;"><span class="tenant-avatar" style="width:24px;height:24px;font-size:10px;background:linear-gradient(135deg,#a3a3a3,#525252);">AP</span><span class="tm-name">Ana Paula</span></span>
+          <span class="tm-process">ana@silva-pi.com.br</span>
+          <span><span class="badge">Membro</span></span>
+          <span><span class="badge badge-warn">Convite</span></span>
+          <span class="tm-action">···</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== WEBHOOKS ============== -->
+    <section class="view" data-view-pane="webhooks">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Webhooks</h1>
+          <p class="page-title-sub">Receba notificações HTTP a cada despacho encontrado</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary btn-sm">Adicionar endpoint</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="tm-row-head" style="grid-template-columns: 2fr 1fr 100px 100px 24px;">
+          <span>Endpoint</span><span>Eventos</span><span>Status</span><span class="right">Última entrega</span><span></span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 2fr 1fr 100px 100px 24px;">
+          <span class="mono" style="font-size:12px;">https://silva-pi.com.br/hooks/onoma</span>
+          <span class="mono" style="font-size:11px;color:var(--fg-muted);">trademark.updated</span>
+          <span><span class="badge badge-success">Ativo</span></span>
+          <span class="right tm-time">hoje 09:14</span>
+          <span class="tm-action">···</span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 2fr 1fr 100px 100px 24px;">
+          <span class="mono" style="font-size:12px;">https://api.silva-pi.com.br/onoma-slack</span>
+          <span class="mono" style="font-size:11px;color:var(--fg-muted);">trademark.*, rpi.processed</span>
+          <span><span class="badge badge-success">Ativo</span></span>
+          <span class="right tm-time">hoje 09:15</span>
+          <span class="tm-action">···</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SETTINGS ============== -->
+    <section class="view" data-view-pane="settings">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">Configurações</h1>
+          <p class="page-title-sub">Informações da conta e preferências</p>
+        </div>
+      </div>
+      <div class="section-card" style="padding: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 20px; max-width: 480px;">
+          <div class="field">
+            <label class="field-label">Nome do tenant</label>
+            <input class="input" value="Silva & Associados PI" />
+          </div>
+          <div class="field">
+            <label class="field-label">Email principal</label>
+            <input class="input" value="renata@silva-pi.com.br" />
+          </div>
+          <div class="field">
+            <label class="field-label">Fuso horário</label>
+            <select class="select">
+              <option>America/Sao_Paulo (UTC-3)</option>
+              <option>America/Manaus (UTC-4)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Idioma</label>
+            <select class="select">
+              <option>Português (Brasil)</option>
+              <option>English</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <button class="btn btn-primary">Salvar</button>
+            <button class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== API KEYS ============== -->
+    <section class="view" data-view-pane="api-keys">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title-h">API keys</h1>
+          <p class="page-title-sub">Use estas chaves para autenticar requisições à API da Onoma</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary btn-sm">Criar chave</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="tm-row-head" style="grid-template-columns: 1fr 1.5fr 100px 100px 24px;">
+          <span>Nome</span><span>Token</span><span>Criada</span><span>Último uso</span><span></span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 1fr 1.5fr 100px 100px 24px;">
+          <span class="tm-name">Produção</span>
+          <span class="mono" style="font-size:12px;color:var(--fg-muted);">onm_live_••••••••••••6f2a</span>
+          <span class="tm-time">10/01</span>
+          <span class="tm-time">hoje 09:14</span>
+          <span class="tm-action">···</span>
+        </div>
+        <div class="tm-row" style="grid-template-columns: 1fr 1.5fr 100px 100px 24px;">
+          <span class="tm-name">Slack-bot</span>
+          <span class="mono" style="font-size:12px;color:var(--fg-muted);">onm_live_••••••••••••a1c8</span>
+          <span class="tm-time">22/03</span>
+          <span class="tm-time">hoje 09:15</span>
+          <span class="tm-action">···</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== DOCS ============== -->
+    <section class="view" data-view-pane="docs">
+      <div class="placeholder-view">
+        <h3>Documentação</h3>
+        <p>Esta seção abriria a documentação completa da API em uma nova aba. Inclui exemplos de auth, paginação, webhooks e SDKs.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+function setView(name) {
+  document.querySelectorAll('.sb-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === name);
+  });
+  document.querySelectorAll('.view').forEach(el => {
+    el.classList.toggle('active', el.dataset.viewPane === name);
+  });
+  const labels = {
+    overview: 'Overview', trademarks: 'Marcas', logs: 'Logs RPI',
+    webhooks: 'Webhooks', team: 'Time', billing: 'Billing',
+    settings: 'Configurações', 'api-keys': 'API keys', docs: 'Documentação'
+  };
+  document.getElementById('crumb').textContent = labels[name] || name;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+document.querySelectorAll('.sb-item').forEach(el => {
+  el.addEventListener('click', () => setView(el.dataset.view));
+});
+
+// Chart bars
+(function() {
+  const data = [
+    { label: 'dez', val: 416, est: false },
+    { label: 'jan', val: 480, est: false },
+    { label: 'fev', val: 512, est: false },
+    { label: 'mar', val: 536, est: false },
+    { label: 'abr', val: 552, est: false },
+    { label: 'mai', val: 568, est: true },
+  ];
+  const max = Math.max(...data.map(d => d.val));
+  const chart = document.getElementById('chart');
+  chart.innerHTML = data.map(d => {
+    const h = (d.val / max * 100).toFixed(0);
+    return `<div class="bar-wrap"><div class="bar ${d.est ? 'muted' : ''}" style="height: ${h}%;" title="${d.val} consultas"></div><div class="bar-label">${d.label}</div></div>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>
